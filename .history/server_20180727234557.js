@@ -121,15 +121,7 @@ app.post("/register", (req, res) => {
   //   res.json(query[0]);
   //   console.log(email)
 
-  db.select("*")
-    .from("users")
-    .where("email", email)
-    .then(user => {
-      //   console.log(user);
-      res.json(user[0]);
-    });
-
-  //   res.redirect("test/" + email);
+  res.redirect("test/" + email);
   //   db
   //     .select("*")
   //     .from("users")
@@ -155,65 +147,34 @@ app.get("/test/:email", (req, res) => {
     .from("users")
     .where("email", req.params.email)
     .then(user => {
-      //   console.log(user);
+      console.log(user);
       res.json(user[0]);
     });
 });
 
 app.get("/profile/:id", (req, res) => {
   const { id } = req.params;
-  //   let found = false;
-  //   database.users.forEach(user => {
-  //     if (user.id === id) {
-  //       found = true;
-  //       return res.json(user);
-  //     }
-  //   });
-  db.select("*")
-    .from("users")
-    .where({ id })
-    .then(user => {
-      //   if (user) {
-      // found = true;
-      if (user.length) return res.json(user[0]);
-      else res.status(404).json("no such user");
-      //   }
-      //   if (!found) res.status(404).json("no such user");
-    })
-    .catch(err => res.status(404).json("error getting user"));
+  let found = false;
+  database.users.forEach(user => {
+    if (user.id === id) {
+      found = true;
+      return res.json(user);
+    }
+  });
+  if (!found) res.status(404).json("no such user");
 });
 
 app.put("/image", (req, res) => {
   const { id } = req.body;
-  //   let found = false;
-  //   database.users.forEach(user => {
-  //     if (user.id === id) {
-  //       found = true;
-  //       user.entries++;
-  //       return res.json(user.entries);
-  //     }
-  //   });
-  //   if (!found) res.status(404).json("no such user");
-  db("users")
-    .where({ id })
-    .increment("entries", 1)
-    .then(
-      // .returning("entries")
-
-      db("users")
-        .select("entries")
-        .where({ id })
-        .then(entries => {
-          //   console.log(entries);
-          res.json(entries[0]);
-        })
-      // .catch(err => {
-      //   res.status(400).json("unable to get entries");
-      // })
-    )
-    .catch(err => {
-      res.status(400).json("unable to get entries");
-    });
+  let found = false;
+  database.users.forEach(user => {
+    if (user.id === id) {
+      found = true;
+      user.entries++;
+      return res.json(user.entries);
+    }
+  });
+  if (!found) res.status(404).json("no such user");
 });
 
 bcrypt.hash("bacon", null, null, function(err, hash) {

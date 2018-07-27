@@ -204,16 +204,10 @@ app.put("/image", (req, res) => {
         .select("entries")
         .where({ id })
         .then(entries => {
-          //   console.log(entries);
+          console.log(entries);
           res.json(entries[0]);
         })
-      // .catch(err => {
-      //   res.status(400).json("unable to get entries");
-      // })
-    )
-    .catch(err => {
-      res.status(400).json("unable to get entries");
-    });
+    );
 });
 
 bcrypt.hash("bacon", null, null, function(err, hash) {

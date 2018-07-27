@@ -197,22 +197,17 @@ app.put("/image", (req, res) => {
   db("users")
     .where({ id })
     .increment("entries", 1)
-    .then(
-      // .returning("entries")
+    // .returning("entries")
+    .then(entries => {
+      console.log(entries);
+      res.json(entries);
+    });
 
-      db("users")
-        .select("entries")
-        .where({ id })
-        .then(entries => {
-          //   console.log(entries);
-          res.json(entries[0]);
-        })
-      // .catch(err => {
-      //   res.status(400).json("unable to get entries");
-      // })
-    )
-    .catch(err => {
-      res.status(400).json("unable to get entries");
+  db("users")
+    .select("entries")
+    .where({ id })
+    .then(entries => {
+      console.log(entries);
     });
 });
 

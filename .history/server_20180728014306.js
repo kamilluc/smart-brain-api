@@ -194,7 +194,7 @@ app.put("/image", (req, res) => {
   //     }
   //   });
   //   if (!found) res.status(404).json("no such user");
-  db("users")
+  db("userss")
     .where({ id })
     .increment("entries", 1)
     .then(

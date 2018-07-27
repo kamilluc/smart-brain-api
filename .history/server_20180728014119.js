@@ -207,9 +207,9 @@ app.put("/image", (req, res) => {
           //   console.log(entries);
           res.json(entries[0]);
         })
-      // .catch(err => {
-      //   res.status(400).json("unable to get entries");
-      // })
+        .catch(err => {
+          res.status(400).json("unable to get entries");
+        })
     )
     .catch(err => {
       res.status(400).json("unable to get entries");
