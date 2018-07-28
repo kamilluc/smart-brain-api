@@ -53,38 +53,18 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  //   if (
-  //     req.body.email === database.users[0].email &&
-  //     req.body.password === database.users[0].password
-  //   )
-  //     // res.json("success")
-  //     res.json(database.users[0]);
-  //   else res.status(400).json("error login in");
-  db.select("email", "hash")
-    .from("login")
-    .where("email", "=", req.body.email)
-    .then(data => {
-      const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
-      if (isValid) {
-        return db
-          .select("*")
-          .from("users")
-          .where("email", "=", req.body.email)
-          .then(user => {
-            res.json(user[0]);
-          })
-          .catch(err => res.status(400).json("unable yo get user"));
-      } else {
-        res.status(400).json("wrong credenials");
-      }
-    })
-    .catch(err => res.status(400).json("wrong credentials"));
+  if (
+    req.body.email === database.users[0].email &&
+    req.body.password === database.users[0].password
+  )
+    // res.json("success")
+    res.json(database.users[0]);
+  else res.status(400).json("error login in");
 });
 
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
   const hash = bcrypt.hashSync(password);
-  //FIXME: error when trying register with same email
   // bcrypt.hash(password, null, null, function(err, hash) {
   //     // Store hash in your password DB.
   //     console.log(hash);
@@ -148,10 +128,10 @@ app.post("/register", (req, res) => {
             //   console.log(user);
             res.json(user[0]);
           });
-      })
-      .then(trx.commit)
-      .catch(trx.rollback);
-  });
+      });
+  })
+    .then(trx.commit)
+    .catch(trx.rollback);
 
   //   db("users")
   //     .insert({
