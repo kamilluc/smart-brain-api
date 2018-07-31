@@ -1,8 +1,7 @@
 const handleRegister = (req, res, db, bcrypt) => {
   const { email, name, password } = req.body;
-  if (!email || !name || !password) {
-    return res.status(400).json("incorrect form submision");
-  }
+  if (!email || !name || !password)
+    res.status(400).json("incorrect form submision");
   const hash = bcrypt.hashSync(password);
   //FIXME: error when trying register with same email
   // bcrypt.hash(password, null, null, function(err, hash) {

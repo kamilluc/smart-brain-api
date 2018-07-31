@@ -128,7 +128,7 @@ app.put("/image", (req, res) => {
 });
 
 app.post("/imageurl", (req, res) => {
-  image.handleApiCall(req, res);
+  image.handleImage(req, res);
 });
 
 bcrypt.hash("bacon", null, null, function(err, hash) {
