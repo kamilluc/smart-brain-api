@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
 });
 
 //skrot mozna tez nie uzywac req,res=>{} pamietaj o update paramtrow z signin.js
-app.post("/signin", signin.handleSignin(db, bcrypt));
+app.post("/signin", signin.handleSignin(db, bcrypt)(req, res));
 
 //dependency injection
 app.post("/register", (req, res) => {

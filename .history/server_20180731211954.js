@@ -6,10 +6,6 @@ const hash = bcrypt.hashSync("bacon");
 const cors = require("cors");
 const knex = require("knex");
 const register = require("./controllers/register");
-const signin = require("./controllers/signin");
-const profile = require("./controllers/profile");
-const image = require("./controllers/image");
-const test = require("./controllers/test");
 const db = knex({
   client: "mysql",
   connection: {
@@ -57,9 +53,34 @@ app.get("/", (req, res) => {
   res.json(database.users);
 });
 
-//skrot mozna tez nie uzywac req,res=>{} pamietaj o update paramtrow z signin.js
-app.post("/signin", signin.handleSignin(db, bcrypt));
-
+app.post("/signin", (req, res) => {
+  //   if (
+  //     req.body.email === database.users[0].email &&
+  //     req.body.password === database.users[0].password
+  //   )
+  //     // res.json("success")
+  //     res.json(database.users[0]);
+  //   else res.status(400).json("error login in");
+  db.select("email", "hash")
+    .from("login")
+    .where("email", "=", req.body.email)
+    .then(data => {
+      const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+      if (isValid) {
+        return db
+          .select("*")
+          .from("users")
+          .where("email", "=", req.body.email)
+          .then(user => {
+            res.json(user[0]);
+          })
+          .catch(err => res.status(400).json("unable yo get user"));
+      } else {
+        res.status(400).json("wrong credenials");
+      }
+    })
+    .catch(err => res.status(400).json("wrong credentials"));
+});
 //dependency injection
 app.post("/register", (req, res) => {
   register.handleRegister(req, res, db, bcrypt);
@@ -116,15 +137,70 @@ app.post("/register", (req, res) => {
 //});
 
 app.get("/test/:email", (req, res) => {
-  test.handleTestRoute(req, res, db);
+  console.log("hello", req.params);
+  db.select("*")
+    .from("users")
+    .where("email", req.params.email)
+    .then(user => {
+      //   console.log(user);
+      res.json(user[0]);
+    });
 });
 
 app.get("/profile/:id", (req, res) => {
-  profile.handleProfileGet(req, res, db);
+  const { id } = req.params;
+  //   let found = false;
+  //   database.users.forEach(user => {
+  //     if (user.id === id) {
+  //       found = true;
+  //       return res.json(user);
+  //     }
+  //   });
+  db.select("*")
+    .from("users")
+    .where({ id })
+    .then(user => {
+      //   if (user) {
+      // found = true;
+      if (user.length) return res.json(user[0]);
+      else res.status(404).json("no such user");
+      //   }
+      //   if (!found) res.status(404).json("no such user");
+    })
+    .catch(err => res.status(404).json("error getting user"));
 });
 
 app.put("/image", (req, res) => {
-  image.handleImage(req, res, db);
+  const { id } = req.body;
+  //   let found = false;
+  //   database.users.forEach(user => {
+  //     if (user.id === id) {
+  //       found = true;
+  //       user.entries++;
+  //       return res.json(user.entries);
+  //     }
+  //   });
+  //   if (!found) res.status(404).json("no such user");
+  db("users")
+    .where({ id })
+    .increment("entries", 1)
+    .then(
+      // .returning("entries")
+
+      db("users")
+        .select("entries")
+        .where({ id })
+        .then(entries => {
+          //   console.log(entries);
+          res.json(entries[0]);
+        })
+      // .catch(err => {
+      //   res.status(400).json("unable to get entries");
+      // })
+    )
+    .catch(err => {
+      res.status(400).json("unable to get entries");
+    });
 });
 
 bcrypt.hash("bacon", null, null, function(err, hash) {

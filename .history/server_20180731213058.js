@@ -8,8 +8,6 @@ const knex = require("knex");
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
 const profile = require("./controllers/profile");
-const image = require("./controllers/image");
-const test = require("./controllers/test");
 const db = knex({
   client: "mysql",
   connection: {
@@ -57,8 +55,9 @@ app.get("/", (req, res) => {
   res.json(database.users);
 });
 
-//skrot mozna tez nie uzywac req,res=>{} pamietaj o update paramtrow z signin.js
-app.post("/signin", signin.handleSignin(db, bcrypt));
+app.post("/signin", (req, res) => {
+  signin.handleSignin(req, res, db, bcrypt);
+});
 
 //dependency injection
 app.post("/register", (req, res) => {
@@ -116,7 +115,14 @@ app.post("/register", (req, res) => {
 //});
 
 app.get("/test/:email", (req, res) => {
-  test.handleTestRoute(req, res, db);
+  console.log("hello", req.params);
+  db.select("*")
+    .from("users")
+    .where("email", req.params.email)
+    .then(user => {
+      //   console.log(user);
+      res.json(user[0]);
+    });
 });
 
 app.get("/profile/:id", (req, res) => {
@@ -124,7 +130,36 @@ app.get("/profile/:id", (req, res) => {
 });
 
 app.put("/image", (req, res) => {
-  image.handleImage(req, res, db);
+  const { id } = req.body;
+  //   let found = false;
+  //   database.users.forEach(user => {
+  //     if (user.id === id) {
+  //       found = true;
+  //       user.entries++;
+  //       return res.json(user.entries);
+  //     }
+  //   });
+  //   if (!found) res.status(404).json("no such user");
+  db("users")
+    .where({ id })
+    .increment("entries", 1)
+    .then(
+      // .returning("entries")
+
+      db("users")
+        .select("entries")
+        .where({ id })
+        .then(entries => {
+          //   console.log(entries);
+          res.json(entries[0]);
+        })
+      // .catch(err => {
+      //   res.status(400).json("unable to get entries");
+      // })
+    )
+    .catch(err => {
+      res.status(400).json("unable to get entries");
+    });
 });
 
 bcrypt.hash("bacon", null, null, function(err, hash) {

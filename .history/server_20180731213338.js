@@ -9,7 +9,6 @@ const register = require("./controllers/register");
 const signin = require("./controllers/signin");
 const profile = require("./controllers/profile");
 const image = require("./controllers/image");
-const test = require("./controllers/test");
 const db = knex({
   client: "mysql",
   connection: {
@@ -57,8 +56,9 @@ app.get("/", (req, res) => {
   res.json(database.users);
 });
 
-//skrot mozna tez nie uzywac req,res=>{} pamietaj o update paramtrow z signin.js
-app.post("/signin", signin.handleSignin(db, bcrypt));
+app.post("/signin", (req, res) => {
+  signin.handleSignin(req, res, db, bcrypt);
+});
 
 //dependency injection
 app.post("/register", (req, res) => {
@@ -116,7 +116,14 @@ app.post("/register", (req, res) => {
 //});
 
 app.get("/test/:email", (req, res) => {
-  test.handleTestRoute(req, res, db);
+  console.log("hello", req.params);
+  db.select("*")
+    .from("users")
+    .where("email", req.params.email)
+    .then(user => {
+      //   console.log(user);
+      res.json(user[0]);
+    });
 });
 
 app.get("/profile/:id", (req, res) => {
